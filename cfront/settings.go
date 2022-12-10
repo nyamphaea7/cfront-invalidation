@@ -3,6 +3,7 @@ package cfront
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -59,17 +60,20 @@ func init() {
 	}
 	_, err := os.Stat(settingsJsonFilePath)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(2)
 	}
 
 	raw, err := os.ReadFile(settingsJsonFilePath)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(2)
 	}
 
 	err = json.Unmarshal(raw, &baseSettings)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(2)
 	}
 
 	var filtered Settings
@@ -81,7 +85,8 @@ func init() {
 	baseSettings = filtered
 
 	if len(baseSettings) == 0 {
-		panic("no settings are valid. please confirm settings.")
+		fmt.Println("no settings are valid. please confirm settings.")
+		os.Exit(2)
 	}
 }
 
