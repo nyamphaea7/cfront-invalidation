@@ -16,6 +16,26 @@ type Setting struct {
 	PathGroups          [][]string `json:"pathGroups"`
 }
 
+func (s *Setting) IsValid() bool {
+	if s.DistributionId == "" {
+		return false
+	}
+
+	if len(s.PathGroups) == 0 {
+		return false
+	}
+
+	var isValidSomePathGroups bool
+	for _, group := range s.PathGroups {
+		isValidSomePathGroups = len(group) > 0
+		if isValidSomePathGroups {
+			break
+		}
+	}
+
+	return isValidSomePathGroups
+}
+
 func (s *Setting) GetAwsConfig() (aws.Config, error) {
 	if s.Profile == "" {
 		return config.LoadDefaultConfig(context.TODO())
@@ -30,7 +50,7 @@ type Settings []Setting
 
 const defaultSettingsJsonFilePath = "./settings.json"
 
-var settings Settings
+var baseSettings Settings
 
 func init() {
 	settingsJsonFilePath := os.Getenv("SETTINGS_JSON_FILE_PATH")
@@ -47,19 +67,31 @@ func init() {
 		panic(err)
 	}
 
-	err = json.Unmarshal(raw, &settings)
+	err = json.Unmarshal(raw, &baseSettings)
 	if err != nil {
 		panic(err)
+	}
+
+	var filtered Settings
+	for _, setting := range baseSettings {
+		if setting.IsValid() {
+			filtered = append(filtered, setting)
+		}
+	}
+	baseSettings = filtered
+
+	if len(baseSettings) == 0 {
+		panic("no settings are valid. please confirm settings.")
 	}
 }
 
 func GetSettings(ids InvalidationGroupIds) Settings {
 	if len(ids) == 0 {
-		return settings
+		return baseSettings
 	}
 
 	var filtered Settings
-	for _, setting := range settings {
+	for _, setting := range baseSettings {
 		if contain(ids, setting.InvalidationGroupId) {
 			filtered = append(filtered, setting)
 		}
