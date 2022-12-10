@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/nyamphaea7/cfront-invalidation/cfront"
 )
@@ -9,5 +10,9 @@ import (
 func main() {
 	args := cfront.GetArgs()
 
-	fmt.Printf("ids: %v(%d)\n", args.InvalidationGroupIds, len(args.InvalidationGroupIds))
+	err := cfront.CreateInvalidations(args.InvalidationGroupIds)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(2)
+	}
 }
