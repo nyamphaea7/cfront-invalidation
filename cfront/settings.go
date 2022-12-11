@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 )
 
 type Setting struct {
@@ -44,6 +45,11 @@ func (s *Setting) GetAwsConfig() (aws.Config, error) {
 	return config.LoadDefaultConfig(
 		context.TODO(),
 		config.WithSharedConfigProfile(s.Profile),
+		config.WithAssumeRoleCredentialOptions(func(aro *stscreds.AssumeRoleOptions) {
+			aro.TokenProvider = func() (string, error) {
+				return stscreds.StdinTokenProvider()
+			}
+		}),
 	)
 }
 
