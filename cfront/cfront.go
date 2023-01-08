@@ -38,7 +38,7 @@ func createInvalidation(setting Setting) error {
 		callerReference := newCallerReference()
 		quantity := int32(len(pathGroup))
 
-		input := cloudfront.CreateInvalidationInput{
+		createInput := cloudfront.CreateInvalidationInput{
 			DistributionId: &setting.DistributionId,
 			InvalidationBatch: &types.InvalidationBatch{
 				CallerReference: &callerReference,
@@ -48,21 +48,34 @@ func createInvalidation(setting Setting) error {
 				},
 			},
 		}
-		var retryCount int
-	retry:
-		output, err := client.CreateInvalidation(context.TODO(), &input)
+		createOutput, err := client.CreateInvalidation(context.TODO(), &createInput)
 		if err != nil {
 			return err
 		}
-		if output == nil || output.Invalidation == nil || output.Invalidation.Status == nil {
+		if createOutput == nil || createOutput.Invalidation == nil || createOutput.Invalidation.Status == nil {
 			return errors.New("create invalidation response status is empty")
 		}
-		if *output.Invalidation.Status != "Completed" {
+
+		var retryCount int
+		getInput := cloudfront.GetInvalidationInput{
+			DistributionId: &setting.DistributionId,
+			Id:             createOutput.Invalidation.Id,
+		}
+	retry:
+		time.Sleep(1 * time.Second)
+		getOutput, err := client.GetInvalidation(context.TODO(), &getInput)
+		if err != nil {
+			return err
+		}
+		if getOutput == nil || getOutput.Invalidation == nil || getOutput.Invalidation.Status == nil {
+			return errors.New("get invalidation response status is empty")
+		}
+
+		if *getOutput.Invalidation.Status != "Completed" {
 			retryCount++
 			if retryCount > maxRetryCount {
 				return errors.New("max retry count over")
 			}
-			time.Sleep(1 * time.Second)
 			goto retry
 		}
 	}
