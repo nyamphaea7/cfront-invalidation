@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 )
 
+const maxRetryCount = 30
+
 func CreateInvalidations(ids InvalidationGroupIds) error {
 	settings := GetSettings(ids)
 	if len(settings) == 0 {
@@ -46,6 +48,7 @@ func createInvalidation(setting Setting) error {
 				},
 			},
 		}
+		var retryCount int
 	retry:
 		output, err := client.CreateInvalidation(context.TODO(), &input)
 		if err != nil {
@@ -55,6 +58,10 @@ func createInvalidation(setting Setting) error {
 			return errors.New("create invalidation response status is empty")
 		}
 		if *output.Invalidation.Status != "Completed" {
+			retryCount++
+			if retryCount > maxRetryCount {
+				return errors.New("max retry count over")
+			}
 			time.Sleep(1 * time.Second)
 			goto retry
 		}
