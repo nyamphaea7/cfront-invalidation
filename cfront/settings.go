@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -42,6 +43,8 @@ func (s *Setting) GetAwsConfig() (aws.Config, error) {
 	if s.Profile == "" {
 		return config.LoadDefaultConfig(context.TODO())
 	}
+	log.Println("[using profile]", s.Profile)
+
 	return config.LoadDefaultConfig(
 		context.TODO(),
 		config.WithSharedConfigProfile(s.Profile),

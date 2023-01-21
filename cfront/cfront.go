@@ -3,13 +3,16 @@ package cfront
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 )
 
-const maxRetryCount = 30
+const (
+	maxRetryCount = 120
+)
 
 func CreateInvalidations(ids InvalidationGroupIds) error {
 	settings := GetSettings(ids)
@@ -35,6 +38,7 @@ func createInvalidation(setting Setting) error {
 	client := cloudfront.NewFromConfig(cfg)
 
 	for _, pathGroup := range setting.PathGroups {
+		log.Println("[target path group]", pathGroup)
 		callerReference := newCallerReference()
 		quantity := int32(len(pathGroup))
 
@@ -76,6 +80,7 @@ func createInvalidation(setting Setting) error {
 			if retryCount > maxRetryCount {
 				return errors.New("max retry count over")
 			}
+			log.Println("[retry]", retryCount, "[current status]", *getOutput.Invalidation.Status)
 			goto retry
 		}
 	}
