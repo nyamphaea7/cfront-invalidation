@@ -5,5 +5,7 @@
     "distributionId": "",
     "pathGroups": [
         []
-    ]
+    ],
+    "retryInterval": 1,
+    "maxRetryCount": 60
 }
