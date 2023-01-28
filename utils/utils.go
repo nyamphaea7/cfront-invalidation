@@ -1,6 +1,6 @@
-package cfront
+package utils
 
-func contain[T comparable](arr []T, v T) bool {
+func Contain[T comparable](arr []T, v T) bool {
 	for _, vInArr := range arr {
 		if vInArr == v {
 			return true

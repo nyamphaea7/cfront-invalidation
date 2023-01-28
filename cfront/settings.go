@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
+	"github.com/nyamphaea7/cfront-invalidation/utils"
 )
 
 type Setting struct {
@@ -106,7 +107,7 @@ func GetSettings(ids InvalidationGroupIds) Settings {
 
 	var filtered Settings
 	for _, setting := range baseSettings {
-		if contain(ids, setting.InvalidationGroupId) {
+		if utils.Contain(ids, setting.InvalidationGroupId) {
 			filtered = append(filtered, setting)
 		}
 	}
