@@ -136,7 +136,7 @@ func (o *Option) printExecuteContents() {
 		retryInterval = fmt.Sprintf("%d sec", o.RetryInterval)
 		maxRetryCount string
 	)
-	if len(profile) == 0 {
+	if len(o.Profile) == 0 {
 		profile = "<default profile>"
 	} else {
 		profile = o.Profile
