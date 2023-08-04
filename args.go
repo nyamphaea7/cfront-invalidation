@@ -9,7 +9,7 @@ var (
 	isSpecifiedSettingJSONFilePath bool
 	isSpecifiedSomeOptions         bool
 
-	errInvalidSpecifiedSettingFilePathAndOthers = errors.New("-s option cannot be specified with any other option(except -f). Or either -s option or other options(except -f) must be specified.")
+	errInvalidSpecifiedSettingFilePathAndOthers = errors.New("-s option cannot be specified with any other option(except -f). Or either -s option or other options(except -f) must be specified")
 )
 
 func visit(f *flag.Flag) {
